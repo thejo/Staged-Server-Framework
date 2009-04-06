@@ -12,6 +12,7 @@ package in.kote.ssf.net.http;
 public class HttpMimeType {
     public static String TEXT_PLAIN = "text/plain";
     public static String TEXT_CSV = "text/csv";
+    public static String TEXT_XML = "text/xml";
     public static String APPLICATION_EXCEL = "application/vnd.ms-excel";
     public static String APPLICATION_STREAM = "application/octet-stream";
 }

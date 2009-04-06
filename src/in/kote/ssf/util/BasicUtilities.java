@@ -45,4 +45,19 @@ public class BasicUtilities {
         Random r = new Random();
         return r.nextInt(end) + start;
     }
+
+    /**
+     * Calculate and return the amount of memory used by the JVM
+     *
+     * @return long - Memory usage in bytes
+     */
+    public static long getUsedMemory() {
+        return Runtime.getRuntime().totalMemory() -
+                Runtime.getRuntime().freeMemory();
+    }
+
+    public static float getFreeMemoryPercentage() {
+        return ( Runtime.getRuntime().freeMemory() /
+                Runtime.getRuntime().totalMemory() ) * 100;
+    }
 }

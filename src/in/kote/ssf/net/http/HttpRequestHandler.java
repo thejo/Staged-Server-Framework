@@ -56,9 +56,9 @@ public class HttpRequestHandler {
             throw new IOException(ioe);
 
         } finally {
-            if(! socket.getSocket().isClosed() )  try {
+            if(! socket.getSocket().isClosed() ) {
                 socket.getSocket().close();
-            } catch (IOException ex) { }
+            }
         }
     }
 

@@ -159,14 +159,14 @@ public class HttpRequestParser {
 
     /**
      * Constructor
-     * 
+     *
      * @param input - The inputstream of the socket on which we are receiving
      * data
      */
     public HttpRequestParser(CommSocket socket) throws IOException {
         this.input = socket.getSocket().getInputStream();
         this.httpRequest.setSocket(socket);
-        
+
         this.bufSize = DEFAULT_BUFSIZE;
         this.buffer = new byte[this.bufSize];
     }
@@ -174,18 +174,18 @@ public class HttpRequestParser {
     /**
      * This method should be called to process the incoming HTTP request. It
      * parses the request and sets all available details
-     * 
+     *
      * @throws com.netcore.bulkrequest.exceptions.HTTPParseException
      * @throws java.io.UnsupportedEncodingException
      * @throws java.io.IOException
      */
-    public void process() throws 
+    public void process() throws
             HTTPParseException, UnsupportedEncodingException, IOException {
-        
+
         String[] lines = getHeaders();
         String firstLine = null;
         boolean boundaryAvailable = true;
-        
+
         for(String line : lines) {
             if(line.startsWith(GET)) {
                 this.httpRequest.setRequestMethod(GET);
@@ -230,16 +230,16 @@ public class HttpRequestParser {
 
     /**
      * Get only the HTTP headers
-     * 
+     *
      * @return
      * @throws com.netcore.bulkrequest.exceptions.HTTPParseException
      * @throws java.io.UnsupportedEncodingException
      * @throws java.io.IOException
      */
-    private String[] getHeaders() 
+    private String[] getHeaders()
             throws HTTPParseException, UnsupportedEncodingException, IOException {
         this.httpRequest.setHttpHeaders(readHeaders());
-        
+
         if(null == this.httpRequest.getHttpHeaders()) {
             throw new HTTPParseException("No headers available");
         }
@@ -297,7 +297,7 @@ public class HttpRequestParser {
 
     /**
      * Read a single byte from the inputstream
-     * 
+     *
      * @return The next byte
      * @throws java.io.IOException
      */
@@ -312,13 +312,13 @@ public class HttpRequestParser {
                 throw new IOException("No more data is available");
             }
         }
-        
+
         return buffer[head++];
     }
 
     /**
      * Read boundaries in multipart requests
-     * 
+     *
      * @return true if the end of a multipart request has been reached, false
      * otherwise
      * @throws java.io.IOException
@@ -326,7 +326,7 @@ public class HttpRequestParser {
      * request is not in the expected format
      */
     private boolean readBoundary() throws IOException, HTTPParseException {
-        
+
         this.boundaryLength = this.boundary.length;
 
         for(int i = 0; i < this.boundaryLength; i++) {
@@ -354,7 +354,7 @@ public class HttpRequestParser {
 
     /**
      * Extracts details from a single section of a multi part request
-     * 
+     *
      * @throws java.io.UnsupportedEncodingException
      * @throws java.io.IOException
      */
@@ -363,12 +363,12 @@ public class HttpRequestParser {
 
         String paramName = null;
         String fileNameLocal = null;
-        
+
         String elementHeaders = readHeaders();
         String[] lines = elementHeaders.split("\r\n");
 
         for(String line : lines) {
-            
+
             if(line.toLowerCase().indexOf(CONTENT_DISPOSITION) != -1) {
                 String[] paramDetails = line.split(";");
                 for(String d: paramDetails) {
@@ -386,14 +386,15 @@ public class HttpRequestParser {
             }
 
             if(line.toLowerCase().indexOf(CONTENT_TYPE) != -1) {
-                this.httpRequest.setFileContentType(line.split("\\s")[1]);
+                this.httpRequest.setFileContentType(line.split("\\s")[1].
+                        toLowerCase());
             }
         }
 
         ByteArrayOutputStream paramValue = readMultiPartValue();
 
         if(fileNameLocal == null) {
-            this.httpRequest.getRequestArgs().put(paramName,
+            this.httpRequest.getRequestArgs().put(paramName.toLowerCase(),
                     paramValue.toString());
         } else {
             this.httpRequest.setFileContents(paramValue);
@@ -404,12 +405,12 @@ public class HttpRequestParser {
 
     /**
      * Read the parameter value of a single section of a multipart request
-     * 
+     *
      * @return
      * @throws java.io.IOException
      */
     private ByteArrayOutputStream readMultiPartValue() throws IOException {
-        
+
         int boundaryPrefixLength = BOUNDARY_PREFIX.length;
         byte[] miniBuffer = new byte[boundaryPrefixLength];
         ByteArrayOutputStream value = new ByteArrayOutputStream();
@@ -448,7 +449,7 @@ public class HttpRequestParser {
 
     /**
      * Parse an multi-part section of an incoming HTTP POST request
-     * 
+     *
      * @throws java.io.IOException
      * @throws com.netcore.bulkrequest.exceptions.HTTPParseException
      */
@@ -460,7 +461,7 @@ public class HttpRequestParser {
         if(readByte() != DASH || readByte() != DASH) {
             throw new HTTPParseException("Invalid multipart request");
         }
-        
+
         //Process each section of the multipart request
         while(bytesAvailable) {
             //Check if boundary is present
@@ -477,7 +478,7 @@ public class HttpRequestParser {
     /**
      * Given the first line of a GET HTTP request, parses it and returns the
      * parameters as a map
-     * 
+     *
      * @param req The first line of the HTTP GET request
      * @return Map<String,String> - A map of key value pairs
      */
@@ -491,9 +492,9 @@ public class HttpRequestParser {
         req = req.substring(s+1, e);
         int loc = req.indexOf('?');
         if (loc < 0) {  return null;  }
-        
+
         req = req.substring(loc+1);
-        
+
         return parseQueryString(req);
     }
 
@@ -526,7 +527,7 @@ public class HttpRequestParser {
 
     /**
      * Parse the query string of a POST request and return a map
-     * 
+     *
      * @return Map<String,String> - A map of key value pairs
      */
     private Map<String,String> parsePOSTRequest() throws HTTPParseException {
@@ -548,7 +549,7 @@ public class HttpRequestParser {
                 break;
             }
         }
-        
+
         return parseQueryString(postParams.toString());
     }
 
