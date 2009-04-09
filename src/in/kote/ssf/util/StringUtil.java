@@ -66,7 +66,7 @@ public class StringUtil {
     * @param getArgs
     * @return A query string that can be used in a URL. Does not include the "?"
     */
-    public static String convertToQueryString(HashMap<String, String> getArgs) {
+    public static String convertToQueryString(Map<String, String> getArgs) {
         if(getArgs.size() == 0) return "";
 
         String queryString = null;
