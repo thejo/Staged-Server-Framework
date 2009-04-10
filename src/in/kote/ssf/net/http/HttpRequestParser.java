@@ -313,6 +313,7 @@ public class HttpRequestParser {
             }
         }
 
+        //System.out.print((char)(buffer[head] & 0xFF));
         return buffer[head++];
     }
 

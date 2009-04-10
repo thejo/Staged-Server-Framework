@@ -15,4 +15,5 @@ public class HttpMimeType {
     public static String TEXT_XML = "text/xml";
     public static String APPLICATION_EXCEL = "application/vnd.ms-excel";
     public static String APPLICATION_STREAM = "application/octet-stream";
+    public static String MULTIPART_FORM_DATA = "multipart/form-data"; //Some clients set this as the content-type
 }

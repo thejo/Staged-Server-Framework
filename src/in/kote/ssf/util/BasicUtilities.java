@@ -57,7 +57,7 @@ public class BasicUtilities {
     }
 
     public static float getFreeMemoryPercentage() {
-        return ( Runtime.getRuntime().freeMemory() /
+        return ( (float) Runtime.getRuntime().freeMemory() /
                 Runtime.getRuntime().totalMemory() ) * 100;
     }
 }
