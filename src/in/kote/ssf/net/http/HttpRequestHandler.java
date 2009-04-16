@@ -32,7 +32,7 @@ public class HttpRequestHandler {
         HttpRequestParser httpParser = null;
         
         try {
-            httpParser = new HttpRequestParser(this.socket);
+            httpParser = new HttpRequestParser(this.serverConfig, this.socket);
             httpParser.process();
         } catch (Exception ex) {
             throw new Exception(ex);
