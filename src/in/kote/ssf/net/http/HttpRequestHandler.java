@@ -17,9 +17,15 @@ import in.kote.ssf.net.CommSocket;
  */
 public class HttpRequestHandler {
     private CommSocket socket;
+    private IHttpServerConfiguration serverConfig;
+
+    public HttpRequestHandler(IHttpServerConfiguration config, CommSocket socket) {
+        this.serverConfig = config;
+        this.socket = socket;
+    }
 
     public HttpRequestHandler(CommSocket socket) {
-        this.socket = socket;
+        this(new DefaultHttpServerConfiguration(), socket);
     }
 
     public HttpRequest process() throws Exception {

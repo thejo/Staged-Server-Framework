@@ -42,25 +42,6 @@ public class HttpRequestParser {
      */
     public static final byte DASH = 0x2D;
 
-
-    /**
-     * The maximum length of <code>header-part</code> that will be
-     * processed (10 kilobytes = 10240 bytes.).
-     */
-    public static final int HEADER_PART_SIZE_MAX = 10240;
-
-
-    /**
-     * The default length of the buffer used for processing a request.
-     */
-    protected static final int DEFAULT_BUFSIZE = 4096;
-
-    /**
-     * Max. size of the POST field value that we will accept
-     */
-    protected static final long POST_SIZE_MAX = 20 * 1024 * 1024;
-
-
     /**
      * A byte sequence that marks the end of <code>header-part</code>
      * (<code>CRLFCRLF</code>).
@@ -158,17 +139,36 @@ public class HttpRequestParser {
 
 
     /**
-     * Constructor
+     * Server configuration
+     */
+    IHttpServerConfiguration serverConfig;
+
+    /**
+     * Constructor which accepts configuration and incoming socket connection
+     * 
+     * @param config
+     * @param socket
+     * @throws java.io.IOException
+     */
+    public HttpRequestParser(IHttpServerConfiguration config, CommSocket socket) 
+            throws IOException {
+        
+        this.serverConfig = config;
+        this.input = socket.getSocket().getInputStream();
+        this.httpRequest.setSocket(socket);
+
+        this.bufSize = config.getDefaultBufSize();
+        this.buffer = new byte[this.bufSize];
+    }
+
+    /**
+     * Constructor which uses the default confiiguration
      *
      * @param input - The inputstream of the socket on which we are receiving
      * data
      */
     public HttpRequestParser(CommSocket socket) throws IOException {
-        this.input = socket.getSocket().getInputStream();
-        this.httpRequest.setSocket(socket);
-
-        this.bufSize = DEFAULT_BUFSIZE;
-        this.buffer = new byte[this.bufSize];
+        this(new DefaultHttpServerConfiguration(), socket);
     }
 
     /**
@@ -266,9 +266,10 @@ public class HttpRequestParser {
             } catch (IOException e) {
                 throw new IOException("Stream ended unexpectedly");
             }
-            if (++size > HEADER_PART_SIZE_MAX) {
+            if (++size > this.serverConfig.getHeaderPartMaxSize()) {
                 throw new IOException(
-                        "Header section has more than " + HEADER_PART_SIZE_MAX
+                        "Header section has more than " 
+                        + this.serverConfig.getHeaderPartMaxSize()
                         + " bytes (maybe it is not properly terminated)");
             }
             if (b == HEADER_SEPARATOR[i]) {
@@ -423,9 +424,9 @@ public class HttpRequestParser {
             b = readByte();
 
             //Check for max. allowed POSTed field value
-            if (++size > POST_SIZE_MAX) {
+            if (++size > this.serverConfig.getMaxPostSize()) {
                 throw new IOException("File size exceeds maximum allowed size " +
-                        "of " + POST_SIZE_MAX + " bytes");
+                        "of " + this.serverConfig.getMaxPostSize() + " bytes");
             }
 
             if(b == BOUNDARY_PREFIX[i]) {
