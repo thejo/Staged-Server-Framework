@@ -10,11 +10,35 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import in.kote.ssf.net.EndPoint;
+
 /**
  *
  * @author Thejo
  */
 public class BasicUtilities {
+
+    /**
+     * Given a host, check if it is the localhost
+     *
+     * @param host
+     * @return true if the host is the localhost
+     */
+    public static boolean isHostLocalHost(String host)
+    {
+        //Check if it is localhost first
+        //Hack required for Windows systems (?)
+        if(host.equalsIgnoreCase("localhost") ||
+                host.equalsIgnoreCase("127.0.0.1")) {
+            return true;
+        }
+
+        if(null == EndPoint.localHost) {
+            return false;
+        } else {
+            return EndPoint.localHost.equalsIgnoreCase(host);
+        }
+    }
 
     /**
      * Given a string, returns the MD5 hash

@@ -16,6 +16,10 @@ import in.kote.ssf.util.BasicUtilities;
  * @author Thejo
  */
 public class ConsistentHash {
+    /**
+     * Consistent hash for external consumption
+     */
+    public static SortedMap<Integer, EndPoint> consistentHash;
     
     /**
      * An ordered map which represents the circle of a consistent hash
