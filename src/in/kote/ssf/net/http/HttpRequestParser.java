@@ -121,6 +121,11 @@ public class HttpRequestParser {
      */
     private int tail;
 
+    /**
+     * Tracks if the end of the incoming request has been reached
+     */
+    private boolean requestComplete;
+
     // ----------------- Request Contents -------------------
 
     private HttpRequest httpRequest = new HttpRequest();
@@ -204,6 +209,7 @@ public class HttpRequestParser {
                         boundaryAvailable = false;
                     } else {
                         this.boundary = parts[1].getBytes("ISO-8859-1");
+                        this.boundaryLength = this.boundary.length;
                     }
                 } else {
                     boundaryAvailable = false;
@@ -313,29 +319,39 @@ public class HttpRequestParser {
                 throw new IOException("No more data is available");
             }
         }
-
+        
         //System.out.print((char)(buffer[head] & 0xFF));
         return buffer[head++];
     }
 
     /**
-     * Read boundaries in multipart requests
+     * Read and return a given number of bytes from the incoming buffer
+     * 
+     * @param count
+     * @return
+     * @throws java.io.IOException
+     */
+    private byte[] readBytes(int count) throws IOException {
+        byte[] bytes = new byte[count];
+
+        for(int i = 0; i < count; i++) {
+            bytes[i] = readByte();
+        }
+
+        return bytes;
+    }
+
+    /**
+     * Checks if we've reached the end of the multi-part request, by looking
+     * at the two bytes following the boundary
      *
-     * @return true if the end of a multipart request has been reached, false
+     * @return true if the end of the multipart request has been reached, false
      * otherwise
      * @throws java.io.IOException
      * @throws com.netcore.bulkrequest.exceptions.HTTPParseException - If the
      * request is not in the expected format
      */
-    private boolean readBoundary() throws IOException, HTTPParseException {
-
-        this.boundaryLength = this.boundary.length;
-
-        for(int i = 0; i < this.boundaryLength; i++) {
-            if(readByte() != this.boundary[i]) {
-                throw new HTTPParseException("Invalid multipart request");
-            }
-        }
+    private boolean isMultiPartRequestDone() throws IOException, HTTPParseException {
 
         //Check if we have reached the end of request
         byte[] checkRequestEnd = new byte[2];
@@ -350,8 +366,25 @@ public class HttpRequestParser {
         if(checkRequestEnd[0] != CR || checkRequestEnd[1] != LF) {
             throw new HTTPParseException("Invalid multipart request");
         }
-
+        
         return false;
+    }
+
+    /**
+     * Checks if the given array of bytes is the boundary string for this
+     * multi-part request
+     * 
+     * @param boundary
+     * @return true if the array of bytes is the boundary string
+     */
+    private boolean isBoundary(byte[] boundary) {
+        for(int i = 0; i < this.boundaryLength; i++) {
+            if(boundary[i] != this.boundary[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -361,7 +394,7 @@ public class HttpRequestParser {
      * @throws java.io.IOException
      */
     private void readMultiPartParameter()
-            throws UnsupportedEncodingException, IOException {
+            throws UnsupportedEncodingException, IOException, HTTPParseException {
 
         String paramName = null;
         String fileNameLocal = null;
@@ -397,7 +430,7 @@ public class HttpRequestParser {
 
         if(fileNameLocal == null) {
             this.httpRequest.getRequestArgs().put(paramName.toLowerCase(),
-                    paramValue.toString());
+                    new String(paramValue.toByteArray(), "UTF-8"));
         } else {
             this.httpRequest.setFileContents(paramValue);
             this.httpRequest.setFileName(fileNameLocal);
@@ -411,7 +444,8 @@ public class HttpRequestParser {
      * @return
      * @throws java.io.IOException
      */
-    private ByteArrayOutputStream readMultiPartValue() throws IOException {
+    private ByteArrayOutputStream readMultiPartValue() throws IOException,
+            HTTPParseException {
 
         int boundaryPrefixLength = BOUNDARY_PREFIX.length;
         byte[] miniBuffer = new byte[boundaryPrefixLength];
@@ -429,11 +463,29 @@ public class HttpRequestParser {
                         "of " + this.serverConfig.getMaxPostSize() + " bytes");
             }
 
-            if(b == BOUNDARY_PREFIX[i]) {
+            //Always start populating the mini buffer as soon as we see a \r (the
+            //first character of a boundary prefix)
+            if(b == BOUNDARY_PREFIX[0]) {
+                //If this is part of series like \r\n\r or \r\n-\r, we need
+                //to save the bytes we've been tracking
+                if(i > 0) {
+                    for(int j = 0; j < i; j++) {
+                        value.write(miniBuffer[j]);
+                    }
+                }
+                
+                miniBuffer[i] = b;
+                i = 1;
+            }
+            //Once we've caught the first \r of a boundary prefix (possibly),
+            //check if the subsequent characters match the boundary prefix
+            else if(b == BOUNDARY_PREFIX[i]) {
                 miniBuffer[i] = b;
                 i++;
-            } else {
-
+            }
+            //If the subsequent characters don't match the boundary prefix,
+            //save the values we've been buffering and move on
+            else {
                 for(int j = 0; j < i; j++) {
                     value.write(miniBuffer[j]);
                 }
@@ -441,8 +493,31 @@ public class HttpRequestParser {
                 i = 0;
             }
 
+            //If the byte we're looking at didn't get caught in the checks for
+            //the boundary check above, just save the byte
             if(i == 0) {
                 value.write(b);
+            }
+
+            //Have we encountered the boundary prefix?
+            if(i == boundaryPrefixLength) {
+                int currentHead = this.head;
+
+                //If we have come across the boundary; get out of the loop
+                if( isBoundary( readBytes(this.boundaryLength) ) ) {
+                    //If we see the double dash after the boundary, it means the
+                    //request is done
+                    if( isMultiPartRequestDone() ) {
+                        setRequestComplete(true);
+                    }
+                    break;
+                } else {
+                    //Continue reading from where started checking for the boundary
+                    //The boundary prefix has appeared as part of the form data
+                    value.write(BOUNDARY_PREFIX, 0, BOUNDARY_PREFIX.length);
+                    this.head = currentHead;
+                    i = 0;
+                }
             }
         }
 
@@ -456,7 +531,6 @@ public class HttpRequestParser {
      * @throws com.netcore.bulkrequest.exceptions.HTTPParseException
      */
     private void parseMultiPartRequest() throws IOException, HTTPParseException {
-        boolean bytesAvailable = true;
         this.boundaryLength = this.boundary.length;
 
         //Check that the next two bytes are double dash
@@ -465,14 +539,7 @@ public class HttpRequestParser {
         }
 
         //Process each section of the multipart request
-        while(bytesAvailable) {
-            //Check if boundary is present
-
-            if(readBoundary()) {
-                bytesAvailable = false;
-                break;
-            }
-
+        while( ! isRequestComplete() ) {
             readMultiPartParameter();
         }
     }
@@ -501,11 +568,11 @@ public class HttpRequestParser {
     }
 
     /**
-     * Given a query string, parses it and returns the a map
+     * Given a query string, parses it and returns a map
      * @param req - GET or POST query string
      * @return
      */
-    private static Map<String,String> parseQueryString(String req) {
+    public static Map<String,String> parseQueryString(String req) {
         Map<String,String> args = new HashMap<String,String>();
 
         if (req.length() < 1) {  return null;  }
@@ -553,6 +620,14 @@ public class HttpRequestParser {
         }
 
         return parseQueryString(postParams.toString());
+    }
+
+    private boolean isRequestComplete() {
+        return requestComplete;
+    }
+
+    private void setRequestComplete(boolean requestComplete) {
+        this.requestComplete = requestComplete;
     }
 
     public HttpRequest getHttpRequest() {

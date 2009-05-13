@@ -55,7 +55,7 @@ public class HttpRequestHandler {
             out = new PrintWriter(socket.getSocket().getOutputStream(), true);
 
             out.print("HTTP/1.1 200 OK\r\nContent-Type: " +
-                    contentType + "\r\n\r\n");
+                    contentType + "; charset=utf-8" + "\r\n\r\n");
             out.println(response);
 
         } catch (IOException ioe) {
