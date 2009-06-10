@@ -25,9 +25,18 @@ public abstract class AbstractServer extends StageTask
   Thread thread;
   boolean done;
   protected int port;
+  protected int backlog;
+
+  public static final int DEFAULT_BACKLOG = 50;
 
   public AbstractServer(int port) {
       this.port = port;
+      this.backlog = DEFAULT_BACKLOG;
+  }
+
+  public AbstractServer(int port, int backlog) {
+      this.port = port;
+      this.backlog = backlog;
   }
   
   /**

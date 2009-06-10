@@ -217,6 +217,10 @@ public class HttpRequestParser {
             }
         }
 
+        if(this.httpRequest.getRequestMethod() == null) {
+            throw new HTTPParseException("Invalid HTTP request");
+        }
+
         if(this.httpRequest.getRequestMethod().equalsIgnoreCase(GET)) {
             this.httpRequest.setRequestArgs(parseGETRequest(firstLine));
         } else if(this.httpRequest.getRequestMethod().equalsIgnoreCase(POST)
@@ -231,6 +235,8 @@ public class HttpRequestParser {
 
         } else if(this.httpRequest.getRequestMethod().equalsIgnoreCase(POST)) {
             this.httpRequest.setRequestArgs(parsePOSTRequest());
+        } else {
+            throw new HTTPParseException("Unsupported HTTP request");
         }
     }
 

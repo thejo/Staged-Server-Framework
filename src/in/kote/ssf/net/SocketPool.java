@@ -17,6 +17,9 @@ import in.kote.ssf.exceptions.SocketPoolException;
  * part of the request to a worker on a different endpoint. Since we don't want
  * to open a new connection every time it is needed, we'll cache the connections
  * between endpoints and use them whenever needed.
+ *
+ * NOTE: The socket pool assumes that consistent hashing is used to share
+ * requests. The <code>ConsistentHash</code> should be initialized as required
  * 
  * @author Thejo
  */
@@ -66,7 +69,7 @@ public class SocketPool {
      * @param endPointList
      * @param poolSize
      * @see com.netcore.adserver.net.EndPoint
-     * @throws com.netcore.adserver.exceptions.SocketPoolException
+     * @throws SocketPoolException
      */
     public static void initPool(List<EndPoint> endPointList, int poolSize) 
             throws SocketPoolException {
@@ -168,12 +171,12 @@ public class SocketPool {
      * connect, i.e, if a cached connection is not available, it creates a new 
      * one and returns it. This will ensure that we don't have to block till a 
      * connection is available. Makes the implementation simpler and reduces 
-     * chances of starvation. The one problem is if too many connections are 
-     * opened. That is an not likely to happen in case of the ad server
+     * chances of starvation. This may be a problem if too many connections are
+     * opened
      * 
      * @param ep - The endpoint to which you need to connect
      * @return A <code>SocketPoolEntry</code> object
-     * @throws com.netcore.adserver.exceptions.SocketPoolException
+     * @throws SocketPoolException
      */
     public static SocketPoolEntry getSocketPoolEntry(EndPoint ep) 
             throws SocketPoolException {
@@ -227,7 +230,7 @@ public class SocketPool {
      * 
      * @param ep - The endpoint for which we want to return the connection
      * @param entry - The <code>SocketPoolEntry</code> object to be cached
-     * @throws com.netcore.adserver.exceptions.SocketPoolException
+     * @throws SocketPoolException
      */
     public static void returnSocketPoolEntry(EndPoint ep, SocketPoolEntry entry) 
             throws SocketPoolException {
@@ -277,7 +280,7 @@ public class SocketPool {
      * 
      * @param socket
      * @return PrintWriter
-     * @throws com.netcore.adserver.exceptions.SocketPoolException
+     * @throws SocketPoolException
      */
     public static PrintWriter getOut(Socket socket) throws SocketPoolException {
         PrintWriter out = null;
@@ -296,7 +299,7 @@ public class SocketPool {
      * 
      * @param socket
      * @return BufferedReader
-     * @throws com.netcore.adserver.exceptions.SocketPoolException
+     * @throws SocketPoolException
      */
     public static BufferedReader getIn(Socket socket) throws SocketPoolException {
         BufferedReader in = null;
@@ -312,19 +315,19 @@ public class SocketPool {
     }
     
     /**
-     * The Ad server allows adding and removal of endpoints to a cluster. It 
-     * periodically reads the list of available endpoints from the database and 
-     * updates the socket pool as needed. <br />
+     * All nodes in an application cluster can periodically read the list of
+     * available endpoints from the database or other source and update the
+     * socket pool as needed. <br />
      * To remove an endpoint from a cluster, remove the corresponding entry from 
-     * the table which maintains the list. Wait for the next update cycle of the 
-     * ad server, and then disconnect the machine from the network. <br />
+     * the source which maintains the list. Wait for the next update cycle of the
+     * node, and then disconnect the machine from the network. <br />
      * To add a new machine to a cluster, first connect it to the network, i.e, 
      * make it accessible to the other servers in the cluster, then add an entry 
-     * in the table which maintains the list. The ad server will automatically 
-     * start sending the new machine requests after the next update cycle
+     * to the source which maintains the list. The new node will automatically
+     * start receiving requests after the next update cycle
      * 
      * @param newList
-     * @throws com.netcore.adserver.exceptions.SocketPoolException
+     * @throws SocketPoolException
      */
     public static void updatePool(List<EndPoint> newList) 
             throws SocketPoolException {
@@ -375,20 +378,19 @@ public class SocketPool {
     /**
      * Shutdown the socket pool. Closes cached connections to all endpoints. We 
      * don't have to worry about requests for connections or returns to the pool 
-     * during shutdown if all the ad server stages have already been shutdown
+     * during shutdown if all the application stages have already been shutdown
      */
     public static void shutdown() {
 
         lock.lock();
         try {
             
-            for(Map.Entry<EndPoint, LinkedList<SocketPoolEntry>> entry : 
-                socketPool.entrySet()) {
-                    
-                EndPoint ep = entry.getKey();
-                
+            Iterator<EndPoint> it = socketPool.keySet().iterator();
+            while(it.hasNext()) {
+                EndPoint ep = it.next();
+
                 disconnectEndPoint(ep);
-                socketPool.remove(ep);                
+                it.remove();
             }
             
         }  finally {

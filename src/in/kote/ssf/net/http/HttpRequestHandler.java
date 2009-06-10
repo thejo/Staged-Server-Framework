@@ -50,19 +50,19 @@ public class HttpRequestHandler {
     public static void writeResponse (CommSocket socket, String response,
             String contentType) throws IOException {
 
-        try {
-            PrintWriter out = null;
-            out = new PrintWriter(socket.getSocket().getOutputStream(), true);
+        if(! socket.getSocket().isClosed() ) {
+            try {
+                PrintWriter out = null;
+                out = new PrintWriter(socket.getSocket().getOutputStream(), true);
 
-            out.print("HTTP/1.1 200 OK\r\nContent-Type: " +
-                    contentType + "; charset=utf-8" + "\r\n\r\n");
-            out.println(response);
+                out.print("HTTP/1.1 200 OK\r\nContent-Type: " +
+                        contentType + "; charset=utf-8" + "\r\n\r\n");
+                out.println(response);
 
-        } catch (IOException ioe) {
-            throw new IOException(ioe);
+            } catch (IOException ioe) {
+                throw new IOException(ioe);
 
-        } finally {
-            if(! socket.getSocket().isClosed() ) {
+            } finally {
                 socket.getSocket().close();
             }
         }

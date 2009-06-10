@@ -19,7 +19,8 @@ public class ConsistentHash {
     /**
      * Consistent hash for external consumption
      */
-    public static SortedMap<Integer, EndPoint> consistentHash;
+    public static SortedMap<Integer, EndPoint> consistentHash =
+            new TreeMap<Integer, EndPoint>();
     
     /**
      * An ordered map which represents the circle of a consistent hash
@@ -126,5 +127,16 @@ public class ConsistentHash {
         }
         
         return circle.get(hash);
+    }
+
+    /**
+     * The static field of this class should be populated if this method is used
+     * 
+     * @param key
+     * @return
+     * @throws java.security.NoSuchAlgorithmException
+     */
+    public static EndPoint get(Object key) throws NoSuchAlgorithmException {
+        return get(key, consistentHash);
     }
 }
