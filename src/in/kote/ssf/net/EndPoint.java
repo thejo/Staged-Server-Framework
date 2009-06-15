@@ -26,7 +26,7 @@ public class EndPoint implements Comparable<EndPoint> {
     private String type_;
     
     private transient InetSocketAddress ia_;
-    public static String localHost;
+    public static volatile String localHost;
     
     public EndPoint(String host, int port)
     {

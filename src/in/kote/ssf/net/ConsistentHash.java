@@ -19,7 +19,7 @@ public class ConsistentHash {
     /**
      * Consistent hash for external consumption
      */
-    public static SortedMap<Integer, EndPoint> consistentHash =
+    public static volatile SortedMap<Integer, EndPoint> consistentHash =
             new TreeMap<Integer, EndPoint>();
     
     /**
