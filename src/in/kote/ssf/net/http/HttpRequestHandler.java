@@ -51,8 +51,9 @@ public class HttpRequestHandler {
             String contentType) throws IOException {
 
         if(! socket.getSocket().isClosed() ) {
+            PrintWriter out = null;
+            
             try {
-                PrintWriter out = null;
                 out = new PrintWriter(socket.getSocket().getOutputStream(), true);
 
                 out.print("HTTP/1.1 200 OK\r\nContent-Type: " +
@@ -63,9 +64,9 @@ public class HttpRequestHandler {
                 throw new IOException(ioe);
 
             } finally {
+                out.close();
                 socket.getSocket().close();
             }
         }
     }
-
 }
