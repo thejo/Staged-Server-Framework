@@ -14,6 +14,7 @@ import java.util.concurrent.*;
 public class Queue {
     public static enum Type {
         LINKED_BLOCKING_QUEUE,
+        LINKED_BLOCKING_DEQUE,
         PRIORITY_BLOCKING_QUEUE,
         ARRAY_BLOCKING_QUEUE,
         SYNCHRONOUS_QUEUE};
@@ -23,6 +24,9 @@ public class Queue {
         
         switch(type) {
             case LINKED_BLOCKING_QUEUE:
+                queue = new LinkedBlockingQueue<Runnable>();
+                break;
+            case LINKED_BLOCKING_DEQUE:
                 queue = new LinkedBlockingDeque<Runnable>();
                 break;
             case PRIORITY_BLOCKING_QUEUE:
@@ -35,7 +39,7 @@ public class Queue {
                 queue = new SynchronousQueue<Runnable>();
                 break;
             default:
-                queue = new LinkedBlockingDeque<Runnable>();
+                queue = new LinkedBlockingQueue<Runnable>();
         }
         
         return queue;
