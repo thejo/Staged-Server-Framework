@@ -45,14 +45,28 @@ public interface IStage
     public <T> Future<T> execute(Callable<T> callable);
     
     /**
-     * Executes the given tasks, returning a list of Futures holding their 
+     * Executes the given tasks, returning a list of Futures holding their
      * status and results when all complete.
      * 
-     * @param callable
-     * @return
+     * @param collection of callables
+     * @return a list of Futures
      */
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> callable) 
             throws InterruptedException;
+
+    /**
+     * Executes the given tasks, returning a list of Futures holding
+     * their status and results when all complete or the timeout expires,
+     * whichever happens first.
+
+     * @param collection of callables
+     * @param timeout
+     * @param unit
+     * @return a list of Futures
+     * @throws InterruptedException
+     */
+    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> callable,
+            long timeout, TimeUnit unit) throws InterruptedException;
     
     /**
      * This method is used to submit tasks to this stage

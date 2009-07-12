@@ -50,6 +50,11 @@ public class SingleThreadedStage implements IStage {
             throws InterruptedException {
         return executorService_.invokeAll(callable);
     }
+
+    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> callable,
+            long timeout, TimeUnit unit) throws InterruptedException {
+        return executorService_.invokeAll(callable, timeout, unit);
+    }
     
     public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit)
     {
