@@ -25,14 +25,25 @@ public class MultiThreadedStage implements IStage
             
     public MultiThreadedStage(String name, int numThreads)
     {
-        this(name, numThreads, Queue.Type.LINKED_BLOCKING_QUEUE);     
+        this(name, numThreads, (numThreads * 3), Queue.Type.LINKED_BLOCKING_QUEUE);
     }
 
-    public MultiThreadedStage(String name, int numThreads, Queue.Type queueType)
+    public MultiThreadedStage(String name, int corePoolSize, int maxPoolSize)
+    {
+        this(name, corePoolSize, maxPoolSize, Queue.Type.LINKED_BLOCKING_QUEUE);
+    }
+
+    public MultiThreadedStage(String name, int corePoolSize, Queue.Type queueType)
+    {
+        this(name, corePoolSize, (corePoolSize * 3), queueType);
+    }
+
+    public MultiThreadedStage(String name, int corePoolSize, int maxPoolSize,
+            Queue.Type queueType)
     {
         name_ = name;
-        executorService_ = new DebuggableThreadPoolExecutor( numThreads,
-                numThreads * 3,
+        executorService_ = new DebuggableThreadPoolExecutor( corePoolSize,
+                maxPoolSize,
                 Integer.MAX_VALUE,
                 TimeUnit.SECONDS,
                 Queue.getQueue(queueType),
