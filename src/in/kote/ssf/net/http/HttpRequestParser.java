@@ -11,6 +11,7 @@ import java.util.*;
 import in.kote.ssf.net.CommSocket;
 import in.kote.ssf.util.StringUtil;
 import in.kote.ssf.exceptions.HTTPParseException;
+import java.util.ArrayList;
 
 /**
  * An HTTP request parser. Features - <br />
@@ -135,6 +136,7 @@ public class HttpRequestParser {
     public static String POST = "POST";
     public static String BOUNDARY_KEY = "boundary";
     public static String CONTENT_LENGTH = "content-length";
+    public static String X_FORWARDED_FOR = "x-forwarded-for";
     public static String CONTENT_DISPOSITION = "content-disposition";
     public static String PARAM_NAME = "name";
     public static String FILE_NAME = "filename";
@@ -214,6 +216,9 @@ public class HttpRequestParser {
                 } else {
                     boundaryAvailable = false;
                 }
+            } else if(line.toLowerCase().startsWith(X_FORWARDED_FOR)) {
+                this.httpRequest.getxForwardedFor().addAll(
+                        parseXForwardedFor(line) );
             }
         }
 
@@ -626,6 +631,29 @@ public class HttpRequestParser {
         }
 
         return parseQueryString(postParams.toString());
+    }
+
+    /**
+     * Accept the x-forwarded-for header line, parse it and return a list of
+     * IP addresses in the same order
+     * @param line
+     * @return
+     */
+    private List<String> parseXForwardedFor(String line) {
+        List<String> ipList = new ArrayList<String>();
+
+        int s = line.indexOf(':');
+        if( s < 0) { return ipList; }
+
+        String[] parts = line.trim().split(":");
+        if(parts.length == 2) {
+            String[] ips = parts[1].split(",");
+            for(int i = 0; i < ips.length; i++) {
+                ipList.add(ips[i]);
+            }
+        }
+
+        return ipList;
     }
 
     private boolean isRequestComplete() {

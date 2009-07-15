@@ -67,6 +67,11 @@ public class HttpRequest {
      * The content encoding to use when reading headers.
      */
     private String headerEncoding;
+
+    /**
+     * List of IP address passed in the x-forwarded-for header if available
+     */
+    private final List<String> xForwardedFor = new ArrayList<String>();
     
 
     public CommSocket getSocket() {
@@ -153,6 +158,10 @@ public class HttpRequest {
 
     public void setContentLength(int contentLength) {
         this.contentLength = contentLength;
+    }
+
+    public List<String> getxForwardedFor() {
+        return xForwardedFor;
     }
     
 }
