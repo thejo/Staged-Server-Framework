@@ -35,7 +35,7 @@ public class HttpRequestHandler {
             httpParser = new HttpRequestParser(this.serverConfig, this.socket);
             httpParser.process();
         } catch (Exception ex) {
-            throw new Exception(ex);
+            throw ex;
         }
 
         return httpParser.getHttpRequest();
@@ -61,7 +61,7 @@ public class HttpRequestHandler {
                 out.println(response);
 
             } catch (IOException ioe) {
-                throw new IOException(ioe);
+                throw ioe;
 
             } finally {
                 out.close();

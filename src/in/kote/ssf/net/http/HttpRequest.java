@@ -125,6 +125,12 @@ public class HttpRequest {
         this.multiPartRequest = multiPartRequest;
     }
 
+    /**
+     * This map may be null if the incoming GET or POST request does not
+     * contain any parameters
+     * 
+     * @return
+     */
     public Map<String, String> getRequestArgs() {
         return requestArgs;
     }
