@@ -17,7 +17,8 @@ public class Queue {
         LINKED_BLOCKING_DEQUE,
         PRIORITY_BLOCKING_QUEUE,
         ARRAY_BLOCKING_QUEUE,
-        SYNCHRONOUS_QUEUE};
+        SYNCHRONOUS_QUEUE,
+        DELAY_QUEUE};
 
     public static BlockingQueue<Runnable> getQueue(Type type) {
         BlockingQueue<Runnable> queue = null;
@@ -37,6 +38,11 @@ public class Queue {
                 break;
             case SYNCHRONOUS_QUEUE:
                 queue = new SynchronousQueue<Runnable>();
+                break;
+            case DELAY_QUEUE:
+                /* If a Delay queue is used, the element added to the queue
+                 should implement Runnable and Delayed */
+                queue = new DelayQueue();
                 break;
             default:
                 queue = new LinkedBlockingQueue<Runnable>();

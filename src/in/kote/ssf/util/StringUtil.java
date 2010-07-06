@@ -26,6 +26,15 @@ public class StringUtil {
         }
         return buf.toString();
     }
+
+    public static String joinIntegerList(String sep, List<Integer> pieces) {
+        List<String> newList = new ArrayList<String>(pieces.size());
+        for (Integer myInt : pieces) {
+          newList.add(String.valueOf(myInt));
+        }
+
+        return join(sep, newList);
+    }
   
     public static String join(String sep, String[] pieces) {
         if (pieces.length == 0)  return "";

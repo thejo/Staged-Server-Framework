@@ -22,7 +22,12 @@ public class DateTimeUtilities {
      */
     public static String getDateAsString(String strFormat) {
 
-        Date now = new Date();
+        return getDateAsString(strFormat, System.currentTimeMillis());
+    }
+
+    public static String getDateAsString(String strFormat, long epochTime) {
+
+        Date now = new Date(epochTime);
 
         SimpleDateFormat format = new SimpleDateFormat(strFormat);
 
