@@ -167,15 +167,16 @@ public class StringUtil {
 
     /**
      * Returns true if any one string in the list of needles is a substring of
-     * haystack.
+     * haystack. Comparison is conducted in a case insensitive manner.
      * 
      * @param haystack
      * @param needles
      * @return
      */
-    public static boolean containsIgnoreCase(String haystack, List<String> needles) {
+    public static boolean containsIgnoreCase(String haystack,
+            List<String> needles) {
         for (String n : needles) {
-            if(haystack.contains(n)) {
+            if(haystack.toLowerCase().contains(n.toLowerCase())) {
                 return true;
             }
         }
