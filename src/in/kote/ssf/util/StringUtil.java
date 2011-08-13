@@ -15,7 +15,7 @@ import java.net.URLEncoder;
 public class StringUtil {
     
     public static String join(String sep, List<String> pieces) {
-        if (pieces.size() == 0)  return "";
+        if (pieces.isEmpty())  return "";
         if (pieces.size() == 1)  return pieces.get(0);
 
         StringBuilder buf = new StringBuilder(16*pieces.size());
@@ -76,7 +76,7 @@ public class StringUtil {
     * @return A query string that can be used in a URL. Does not include the "?"
     */
     public static String convertToQueryString(Map<String, String> getArgs) {
-        if(getArgs.size() == 0) return "";
+        if(getArgs.isEmpty()) return "";
 
         String queryString = null;
         String[] list = new String[getArgs.size()];
@@ -121,7 +121,7 @@ public class StringUtil {
     public static String escape(String string) {
         if(null == string || string.length() == 0) { return ""; }
         
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0, len = string.length(); i < len; i++) {
             char c = string.charAt(i);
             switch (c) {
@@ -163,5 +163,23 @@ public class StringUtil {
         csv.append(",");
 
         return csv.toString();
+    }
+
+    /**
+     * Returns true if any one string in the list of needles is a substring of
+     * haystack.
+     * 
+     * @param haystack
+     * @param needles
+     * @return
+     */
+    public static boolean containsIgnoreCase(String haystack, List<String> needles) {
+        for (String n : needles) {
+            if(haystack.contains(n)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
