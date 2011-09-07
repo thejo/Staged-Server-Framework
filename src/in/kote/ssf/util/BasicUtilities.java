@@ -11,6 +11,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import in.kote.ssf.net.EndPoint;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  *
@@ -83,5 +85,18 @@ public class BasicUtilities {
     public static float getFreeMemoryPercentage() {
         return ( (float) Runtime.getRuntime().freeMemory() /
                 Runtime.getRuntime().totalMemory() ) * 100;
+    }
+
+    /**
+     * Given a throwable exception, return the stack trace as a string.
+     * 
+     * @param t
+     * @return
+     */
+    public static String getStackTraceAsString(Throwable t) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        t.printStackTrace(pw);
+        return sw.toString();
     }
 }
