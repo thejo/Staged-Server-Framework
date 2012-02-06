@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>in.kote.ssf</groupId>
+  <artifactId>staged-server-framework</artifactId>
+  <versioning>
+    <versions>
+      <version>0.1-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20120206071245</lastUpdated>
+  </versioning>
+</metadata>
