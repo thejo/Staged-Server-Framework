@@ -39,7 +39,7 @@ public class ConsistentHash {
      * Constructor
      * 
      * @param nodes - A collection of endpoints
-     * @see com.netcore.adserver.net.EndPoint
+     * @see in.kote.ssf.net.EndPoint
      */
     public ConsistentHash(Collection<EndPoint> nodes) 
             throws NoSuchAlgorithmException {

@@ -3,7 +3,7 @@
  * for details about source code license.
  */
 
-package in.kote.ssf.net.response;
+package main.java.in.kote.ssf.net.response;
 
 /**
  * Represents a response to client requests

@@ -148,7 +148,7 @@ public class StringUtil {
      * Prepare a string to be added as an element of an output CSV file.
      * A comma is appended to the end of the string in this method.
      * 
-     * @param string
+     * @param String
      * @return String which can be used as an element of a CSV output
      */
     public static String prepareCSV(String str) {

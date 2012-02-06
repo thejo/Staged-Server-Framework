@@ -68,7 +68,7 @@ public class SocketPool {
      * 
      * @param endPointList
      * @param poolSize
-     * @see com.netcore.adserver.net.EndPoint
+     * @see in.kote.ssf.net.EndPoint
      * @throws SocketPoolException
      */
     public static void initPool(List<EndPoint> endPointList, int poolSize) 
@@ -101,7 +101,7 @@ public class SocketPool {
      * cached connections
      * @param ep - The endpoint to be initialized
      * @return LinkedList<SocketPoolEntry>
-     * @throws com.netcore.adserver.exceptions.SocketPoolException
+     * @throws in.kote.ssf.exceptions.SocketPoolException
      */
     public static LinkedList<SocketPoolEntry> initEndPoint(EndPoint ep) 
             throws SocketPoolException {
