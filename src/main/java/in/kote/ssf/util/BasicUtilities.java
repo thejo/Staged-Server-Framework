@@ -45,7 +45,7 @@ public class BasicUtilities {
     /**
      * Given a string, returns the MD5 hash
      *
-     * @param s String whose MD5 hash value is required
+     * @param s A String whose MD5 hash value is required
      * @return An MD5 hash string
      * @throws java.security.NoSuchAlgorithmException
      */
@@ -90,8 +90,8 @@ public class BasicUtilities {
     /**
      * Given a throwable exception, return the stack trace as a string.
      * 
-     * @param t
-     * @return
+     * @param t A Throwable
+     * @return The stack trace as a string.
      */
     public static String getStackTraceAsString(Throwable t) {
         StringWriter sw = new StringWriter();
