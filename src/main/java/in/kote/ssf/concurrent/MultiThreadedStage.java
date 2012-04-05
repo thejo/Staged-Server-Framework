@@ -21,7 +21,7 @@ import java.util.concurrent.*;
 public class MultiThreadedStage implements IStage
 {    
     private String name_;
-    private DebuggableThreadPoolExecutor executorService_;
+    protected DebuggableThreadPoolExecutor executorService_;
             
     public MultiThreadedStage(String name, int numThreads)
     {
