@@ -8,7 +8,7 @@ package in.kote.ssf.concurrent;
 import java.util.concurrent.*;
 
 /**
- * This is a wrapper class for the <i>ScheduledThreadPoolExecutor</i>. <br />
+ * This is a wrapper class for the <i>ThreadPoolExecutor</i>. <br />
  * 
  * This code is originally from the 
  * <a href="http://code.google.com/p/the-cassandra-project/">Cassandra project</a> 
@@ -17,7 +17,7 @@ import java.util.concurrent.*;
 
 public final class DebuggableThreadPoolExecutor extends ThreadPoolExecutor
 {
-    
+
     public DebuggableThreadPoolExecutor(int corePoolSize,
             int maximumPoolSize,
             long keepAliveTime,

@@ -21,7 +21,7 @@ import java.util.concurrent.*;
 public class MultiThreadedStage implements IStage
 {    
     private String name_;
-    protected DebuggableThreadPoolExecutor executorService_;
+    protected ThreadPoolExecutor executorService_;
             
     public MultiThreadedStage(String name, int numThreads)
     {
@@ -42,13 +42,23 @@ public class MultiThreadedStage implements IStage
             Queue.Type queueType)
     {
         name_ = name;
-        executorService_ = new DebuggableThreadPoolExecutor( corePoolSize,
+        if(queueType == Queue.Type.PRIORITY_BLOCKING_QUEUE) {
+        executorService_ = new ComparableThreadPoolExecutor( corePoolSize,
                 maxPoolSize,
                 Integer.MAX_VALUE,
                 TimeUnit.SECONDS,
                 Queue.getQueue(queueType),
                 new ThreadFactoryImpl(name)
                 );
+        } else {
+            executorService_ = new DebuggableThreadPoolExecutor( corePoolSize,
+                    maxPoolSize,
+                    Integer.MAX_VALUE,
+                    TimeUnit.SECONDS,
+                    Queue.getQueue(queueType),
+                    new ThreadFactoryImpl(name)
+            );
+        }
     }
     
     public String getName() {        
